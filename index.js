@@ -55,7 +55,7 @@ btn.addEventListener("click", async () => {
     const { imageBase64, width, height } = await getDocumentPixels(doc);
 
     setStatus("Reading selection mask...", "working");
-    const maskBase64 = await getSelectionMask(doc, width, height);
+    const maskBase64 = await getSelectionMask(doc, width, height, scaledW, scaledH);
 
     if (!maskBase64 && editMode !== "outpainting") {
       btn.disabled = false;
@@ -66,7 +66,7 @@ btn.addEventListener("click", async () => {
     const resultBase64 = await callImagen3(apiKey, prompt, imageBase64, maskBase64, editMode);
 
     setStatus("Placing result...", "working");
-    await placeResultAsLayer(doc, resultBase64);
+    await placeResultAsLayer(doc, resultBase64, width, height);
 
     setStatus("Done.", "ok");
   } catch (err) {
@@ -77,29 +77,39 @@ btn.addEventListener("click", async () => {
   btn.disabled = false;
 });
 
+// ── Downsampling ──────────────────────────────────────────────────────────────
+const MAX_PX = 1536; // Imagen 3 max dimension
+
+function computeScale(width, height) {
+  return Math.min(1, MAX_PX / Math.max(width, height));
+}
+
 // ── Get full document pixels as base64 PNG ───────────────────────────────────
 async function getDocumentPixels(doc) {
   const width  = doc.width;
   const height = doc.height;
+  const scale  = computeScale(width, height);
+  const scaledW = Math.round(width  * scale);
+  const scaledH = Math.round(height * scale);
 
   const pixelObj = await imaging.getPixels({
     documentID:   doc.id,
     sourceBounds: { left: 0, top: 0, right: width, bottom: height },
-    targetSize:   { width, height },
+    targetSize:   { width: scaledW, height: scaledH },
     colorSpace:   "RGB",
     componentSize: 8,
   });
 
   const imageData = await pixelObj.imageData.getData();
-  const base64    = await pixelsToBase64(imageData, width, height);
+  const base64    = await pixelsToBase64(imageData, scaledW, scaledH);
   pixelObj.imageData.dispose();
 
-  return { imageBase64: base64, width, height };
+  return { imageBase64: base64, width, height, scaledW, scaledH };
 }
 
 // ── Export current selection as a grayscale mask PNG (base64) ─────────────────
 // White pixels = area to inpaint. Black pixels = keep.
-async function getSelectionMask(doc, width, height) {
+async function getSelectionMask(doc, width, height, scaledW, scaledH) {
   // Check if there is an active selection
   const hasSelection = await core.executeAsModal(async () => {
     const result = await action.batchPlay(
@@ -172,14 +182,14 @@ async function getSelectionMask(doc, width, height) {
     const maskPixels = await imaging.getPixels({
       documentID:    doc.id,
       sourceBounds:  { left: 0, top: 0, right: width, bottom: height },
-      targetSize:    { width, height },
+      targetSize:    { width: scaledW, height: scaledH },
       colorSpace:    "Grayscale",
       componentSize: 8,
-      channelIndex:  channelIndex, // alpha channel we just created
+      channelIndex:  channelIndex,
     });
 
     const maskData = await maskPixels.imageData.getData();
-    maskBase64     = await grayscalePixelsToBase64(maskData, width, height);
+    maskBase64     = await grayscalePixelsToBase64(maskData, scaledW, scaledH);
     maskPixels.imageData.dispose();
   } finally {
     // Always clean up the temp channel
@@ -237,7 +247,7 @@ async function grayscalePixelsToBase64(pixelData, width, height) {
 }
 
 // ── Place base64 PNG result as a new layer ────────────────────────────────────
-async function placeResultAsLayer(doc, base64png) {
+async function placeResultAsLayer(doc, base64png, origWidth, origHeight) {
   const folder = await storage.localFileSystem.getTemporaryFolder();
   const file   = await folder.createFile("lier_result.png", { overwrite: true });
 
@@ -247,18 +257,24 @@ async function placeResultAsLayer(doc, base64png) {
   const nativePath = await file.nativePath;
 
   await core.executeAsModal(async () => {
+    // Place with explicit pixel dimensions so it always fills the canvas,
+    // even when the source image was downsampled before sending to the API.
     await action.batchPlay(
       [
         {
           _obj: "placeEvent",
           null: { _path: nativePath, _kind: "local" },
-          _options: { dialogOptions: "dontDisplay" },
+          width:      { _unit: "pixelsUnit", _value: origWidth },
+          height:     { _unit: "pixelsUnit", _value: origHeight },
+          horizontal: { _unit: "pixelsUnit", _value: origWidth  / 2 },
+          vertical:   { _unit: "pixelsUnit", _value: origHeight / 2 },
+          _options:   { dialogOptions: "dontDisplay" },
         },
       ],
       { synchronousExecution: false }
     );
 
-    // Flatten the placed smart object to pixels
+    // Rasterise the placed smart object to a regular pixel layer
     await action.batchPlay(
       [{ _obj: "rasterizeLayer", _target: [{ _ref: "layer", _enum: "ordinal", _value: "targetEnum" }] }],
       { synchronousExecution: false }

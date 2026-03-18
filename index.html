@@ -42,9 +42,7 @@
       resize: vertical;
     }
 
-    select {
-      cursor: pointer;
-    }
+    select { cursor: pointer; }
 
     button {
       width: 100%;
@@ -58,7 +56,7 @@
       font-family: inherit;
     }
 
-    button:hover { background: #106ebe; }
+    button:hover  { background: #106ebe; }
     button:active { background: #005a9e; }
     button:disabled { background: #444; color: #777; cursor: default; }
 
@@ -69,16 +67,9 @@
       color: #aaa;
     }
 
-    #status.error { color: #f77; }
-    #status.ok { color: #7f7; }
+    #status.error   { color: #f77; }
+    #status.ok      { color: #7f7; }
     #status.working { color: #fa0; }
-
-    .row {
-      display: flex;
-      gap: 8px;
-    }
-
-    .row > * { flex: 1; }
 
     hr {
       border: none;
@@ -91,23 +82,47 @@
       color: #666;
       margin-top: 3px;
     }
+
+    .info-bar {
+      margin-top: 8px;
+      padding: 7px 9px;
+      background: #1e1e1e;
+      border-left: 3px solid #0078d4;
+      font-size: 10px;
+      color: #777;
+      line-height: 1.6;
+    }
+
+    .info-bar b { color: #999; }
   </style>
 </head>
 <body>
 
-  <label>API Key</label>
-  <input type="password" id="apiKey" placeholder="AIza..." autocomplete="off" />
-  <div class="hint">Google AI Studio — aistudio.google.com/app/apikey</div>
+  <label>AI Provider</label>
+  <select id="apiProvider">
+    <option value="imagen3">Imagen 3 (Google Vertex AI)</option>
+    <option value="fluxFill">FLUX.1 Fill Pro (fal.ai) — Inpainting</option>
+    <option value="fluxKontext">FLUX.1 Kontext Pro (fal.ai) — Full Image Edit</option>
+  </select>
+  <div class="info-bar" id="infoBar"></div>
+
+  <hr />
+
+  <label id="apiKeyLabel">API Key</label>
+  <input type="password" id="apiKey" autocomplete="off" />
+  <div class="hint" id="apiKeyHint"></div>
 
   <label>Prompt</label>
   <textarea id="prompt" placeholder="Replace with a mossy stone wall..."></textarea>
 
-  <label>Edit Mode</label>
-  <select id="editMode">
-    <option value="inpainting-insert">Inpaint — Insert (fill selection with prompt)</option>
-    <option value="inpainting-remove">Inpaint — Remove (erase selection)</option>
-    <option value="outpainting">Outpaint (expand canvas edges)</option>
-  </select>
+  <div id="editModeRow">
+    <label>Edit Mode</label>
+    <select id="editMode">
+      <option value="inpainting-insert">Inpaint — Insert (fill selection with prompt)</option>
+      <option value="inpainting-remove">Inpaint — Remove (erase selection)</option>
+      <option value="outpainting">Outpaint (expand canvas edges)</option>
+    </select>
+  </div>
 
   <hr />
 

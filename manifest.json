@@ -18,7 +18,13 @@
   ],
   "requiredPermissions": {
     "network": {
-      "domains": ["https://generativelanguage.googleapis.com", "https://us-central1-aiplatform.googleapis.com"]
+      "domains": [
+        "https://generativelanguage.googleapis.com",
+        "https://us-central1-aiplatform.googleapis.com",
+        "https://fal.run",
+        "https://v3.fal.media",
+        "https://fal.media"
+      ]
     },
     "localFileSystem": "request"
   }

@@ -1,0 +1,9 @@
+{
+  "name": "lier",
+  "version": "1.0.0",
+  "description": "Photoshop UXP plugin — Imagen 3 inpainting",
+  "main": "index.js",
+  "scripts": {
+    "watch": "npx uxp-devtools watch"
+  }
+}

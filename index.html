@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Adobe Clean", Arial, sans-serif;
+      font-size: 12px;
+      background: #2b2b2b;
+      color: #ddd;
+      padding: 12px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      margin-bottom: 4px;
+      color: #aaa;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="text"], input[type="password"], textarea, select {
+      width: 100%;
+      background: #1a1a1a;
+      color: #eee;
+      border: 1px solid #444;
+      padding: 6px 8px;
+      font-size: 12px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #0078d4;
+    }
+
+    textarea {
+      height: 72px;
+      resize: vertical;
+    }
+
+    select {
+      cursor: pointer;
+    }
+
+    button {
+      width: 100%;
+      padding: 9px;
+      margin-top: 12px;
+      background: #0078d4;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    button:hover { background: #106ebe; }
+    button:active { background: #005a9e; }
+    button:disabled { background: #444; color: #777; cursor: default; }
+
+    #status {
+      margin-top: 10px;
+      font-size: 11px;
+      min-height: 18px;
+      color: #aaa;
+    }
+
+    #status.error { color: #f77; }
+    #status.ok { color: #7f7; }
+    #status.working { color: #fa0; }
+
+    .row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .row > * { flex: 1; }
+
+    hr {
+      border: none;
+      border-top: 1px solid #3a3a3a;
+      margin: 12px 0;
+    }
+
+    .hint {
+      font-size: 10px;
+      color: #666;
+      margin-top: 3px;
+    }
+  </style>
+</head>
+<body>
+
+  <label>API Key</label>
+  <input type="password" id="apiKey" placeholder="AIza..." autocomplete="off" />
+  <div class="hint">Google AI Studio — aistudio.google.com/app/apikey</div>
+
+  <label>Prompt</label>
+  <textarea id="prompt" placeholder="Replace with a mossy stone wall..."></textarea>
+
+  <label>Edit Mode</label>
+  <select id="editMode">
+    <option value="inpainting-insert">Inpaint — Insert (fill selection with prompt)</option>
+    <option value="inpainting-remove">Inpaint — Remove (erase selection)</option>
+    <option value="outpainting">Outpaint (expand canvas edges)</option>
+  </select>
+
+  <hr />
+
+  <button id="inpaintBtn">Inpaint Selection</button>
+  <div id="status"></div>
+
+  <script src="index.js"></script>
+</body>
+</html>

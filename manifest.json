@@ -1,0 +1,25 @@
+{
+  "id": "com.eamonn.lier",
+  "name": "Lier",
+  "version": "1.0.0",
+  "manifestVersion": 6,
+  "host": [
+    { "app": "PS", "minVersion": "24.0" }
+  ],
+  "entrypoints": [
+    {
+      "type": "panel",
+      "id": "lier-panel",
+      "label": "Lier — AI Inpaint",
+      "minimumSize": { "width": 300, "height": 420 },
+      "preferredDockedSize": { "width": 300, "height": 420 },
+      "main": "index.html"
+    }
+  ],
+  "requiredPermissions": {
+    "network": {
+      "domains": ["https://generativelanguage.googleapis.com", "https://us-central1-aiplatform.googleapis.com"]
+    },
+    "localFileSystem": "request"
+  }
+}

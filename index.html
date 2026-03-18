@@ -33,15 +33,8 @@
       outline: none;
     }
 
-    input:focus, textarea:focus, select:focus {
-      border-color: #0078d4;
-    }
-
-    textarea {
-      height: 72px;
-      resize: vertical;
-    }
-
+    input:focus, textarea:focus, select:focus { border-color: #0078d4; }
+    textarea { height: 72px; resize: vertical; }
     select { cursor: pointer; }
 
     button {
@@ -56,8 +49,8 @@
       font-family: inherit;
     }
 
-    button:hover  { background: #106ebe; }
-    button:active { background: #005a9e; }
+    button:hover   { background: #106ebe; }
+    button:active  { background: #005a9e; }
     button:disabled { background: #444; color: #777; cursor: default; }
 
     #status {
@@ -90,7 +83,7 @@
       border-left: 3px solid #0078d4;
       font-size: 10px;
       color: #777;
-      line-height: 1.6;
+      line-height: 1.7;
     }
 
     .info-bar b { color: #999; }
@@ -98,11 +91,20 @@
 </head>
 <body>
 
-  <label>AI Provider</label>
+  <label>Provider</label>
   <select id="apiProvider">
-    <option value="imagen3">Imagen 3 (Google Vertex AI)</option>
-    <option value="fluxFill">FLUX.1 Fill Pro (fal.ai) — Inpainting</option>
-    <option value="fluxKontext">FLUX.1 Kontext Pro (fal.ai) — Full Image Edit</option>
+    <optgroup label="Edit / Inpaint">
+      <option value="imagen3">Imagen 3 — Inpaint (Google)</option>
+      <option value="fluxFill">FLUX.1 Fill Pro — Inpaint (fal.ai)</option>
+      <option value="fluxKontext">FLUX.1 Kontext Pro — Full Edit (fal.ai)</option>
+    </optgroup>
+    <optgroup label="Upscale">
+      <option value="clarityUpscaler">Clarity Upscaler (fal.ai)</option>
+      <option value="auraSR">AuraSR 4× (fal.ai)</option>
+    </optgroup>
+    <optgroup label="Denoise">
+      <option value="nafnetDenoise">NAFNet Denoise (fal.ai)</option>
+    </optgroup>
   </select>
   <div class="info-bar" id="infoBar"></div>
 
@@ -112,8 +114,10 @@
   <input type="password" id="apiKey" autocomplete="off" />
   <div class="hint" id="apiKeyHint"></div>
 
-  <label>Prompt</label>
-  <textarea id="prompt" placeholder="Replace with a mossy stone wall..."></textarea>
+  <div id="promptRow">
+    <label>Prompt</label>
+    <textarea id="prompt" placeholder="Replace with a mossy stone wall..."></textarea>
+  </div>
 
   <div id="editModeRow">
     <label>Edit Mode</label>
@@ -124,9 +128,17 @@
     </select>
   </div>
 
+  <div id="scaleFactorRow">
+    <label>Scale Factor</label>
+    <select id="scaleFactor">
+      <option value="2">2× — e.g. 2 K → 4 K</option>
+      <option value="4">4× — e.g. 1 K → 4 K</option>
+    </select>
+  </div>
+
   <hr />
 
-  <button id="inpaintBtn">Inpaint Selection</button>
+  <button id="actionBtn">Inpaint Selection</button>
   <div id="status"></div>
 
   <script src="api.js"></script>
